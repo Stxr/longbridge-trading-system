@@ -32,7 +32,7 @@ async function start() {
     quoteProvider.setOnKLine((kline) => strategy.onData(kline));
     tradeProvider.setOnOrderUpdate((order) => strategy.onOrderUpdate(order));
 
-    await quoteProvider.subscribe(['700.HK', 'AAPL.US']);
+    await quoteProvider.subscribe(['700.HK', 'AGQ.US']);
 
     await strategy.onInit();
     console.log('Live trading system running. Subscribed to 700.HK, AAPL.US. Press Ctrl+C to stop.');
