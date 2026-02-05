@@ -6,6 +6,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "start:backtest": "ts-node src/test-backtest.ts",
+    "start:percentage": "ts-node src/test-percentage.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
