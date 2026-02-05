@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Build
+dist/
+build/
+*.tsbuildinfo
+
+# Environment and Secrets
+.env
+.env.test
+.env.production
+*.log
+
+# Databases
+*.sqlite
+*.sqlite-journal
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# OpenSpec Work
+# (Optionally ignore specific temporary artifacts if needed, 
+# but usually we keep the openspec/ directory)
