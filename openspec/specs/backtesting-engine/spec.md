@@ -1,0 +1,12 @@
+# backtesting-engine Specification
+
+## Purpose
+TBD - created by archiving change backtest-with-longbridge-historical-data. Update Purpose after archive.
+## Requirements
+### Requirement: 基于本地存储的历史数据回放
+回测引擎应当（SHALL）支持从本地 SQLite 数据库加载历史数据，并按顺序回放以模拟时间的流逝。
+
+#### Scenario: 从数据库回放分钟数据
+- **当** 引擎指定从本地数据库加载 "700.HK" 的 1 分钟数据时
+- **那么** 它会查询指定时间段的所有 bar，并按时间顺序喂给策略进行回测
+

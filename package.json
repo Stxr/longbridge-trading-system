@@ -6,6 +6,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "start:backtest": "ts-node src/test-backtest.ts",
+    "start:backtest:real": "ts-node src/test-real-backtest.ts",
     "start:percentage": "ts-node src/test-percentage.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,6 +15,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "dayjs": "^1.11.19",
     "dotenv": "^17.2.3",
     "knex": "^3.1.0",
     "longport": "^3.0.21",

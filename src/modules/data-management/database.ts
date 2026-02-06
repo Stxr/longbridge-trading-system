@@ -20,6 +20,7 @@ export async function initDatabase() {
       table.increments('id').primary();
       table.string('symbol').notNullable();
       table.string('market').notNullable();
+      table.string('period').notNullable().defaultTo('1m');
       table.string('timestamp').notNullable();
       table.decimal('open').notNullable();
       table.decimal('high').notNullable();
@@ -27,7 +28,7 @@ export async function initDatabase() {
       table.decimal('close').notNullable();
       table.bigInteger('volume').notNullable();
       table.decimal('turnover');
-      table.unique(['symbol', 'market', 'timestamp']);
+      table.unique(['symbol', 'market', 'period', 'timestamp']);
     });
   }
 

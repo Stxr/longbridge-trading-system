@@ -26,25 +26,56 @@ export class PerformanceAnalyzer {
       if (dd > maxDrawdown) maxDrawdown = dd;
     }
 
-    // Sharpe Ratio (simplified, assuming daily steps and 0 risk-free rate)
+    // Sharpe Ratio calculation
     const returns = [];
     for (let i = 1; i < equityHistory.length; i++) {
       returns.push((equityHistory[i].equity - equityHistory[i - 1].equity) / equityHistory[i - 1].equity);
     }
+    
     const avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
     const stdDev = Math.sqrt(returns.map(x => Math.pow(x - avgReturn, 2)).reduce((a, b) => a + b, 0) / returns.length);
-    const sharpeRatio = stdDev === 0 ? 0 : (avgReturn / stdDev) * Math.sqrt(252); // Annualized
-
-    // Win Rate
+    
+    // Calculate annualization factor based on the actual time span
+    // We estimate how many such periods exist in a trading year (approx 252 days)
+    let sharpeRatio = 0;
+    if (stdDev !== 0 && equityHistory.length >= 2) {
+      const firstTs = new Date(equityHistory[0].timestamp).getTime();
+      const lastTs = new Date(equityHistory[equityHistory.length - 1].timestamp).getTime();
+      const totalDays = (lastTs - firstTs) / (1000 * 60 * 60 * 24);
+      
+      // If the backtest spans less than a day, we treat it as a fraction of a day
+      const daysPerYear = 252;
+      const dataPointsPerDay = (equityHistory.length - 1) / (totalDays || 1);
+      const annualizationFactor = Math.sqrt(dataPointsPerDay * daysPerYear);
+      
+      sharpeRatio = (avgReturn / stdDev) * annualizationFactor;
+    }
+    
+    // Win Rate Calculation
     const filledTrades = trades.filter(t => t.status === 'Filled');
-    const wins = 0; // Needs more complex trade pairing logic to calculate properly
+    let wins = 0;
+    let closedTrades = 0;
+    const buyStack: any[] = [];
+
+    for (const trade of filledTrades) {
+      if (trade.side === 'Buy') {
+        buyStack.push(trade);
+      } else if (trade.side === 'Sell' && buyStack.length > 0) {
+        const buyOrder = buyStack.pop();
+        const profit = (trade.price - buyOrder.price) * trade.quantity;
+        if (profit > 0) wins++;
+        closedTrades++;
+      }
+    }
+
+    const winRate = closedTrades > 0 ? wins / closedTrades : 0;
     
     return {
       totalReturn,
       annualizedReturn: totalReturn, // Simplified
       maxDrawdown,
       sharpeRatio,
-      winRate: 0,
+      winRate,
       totalTrades: filledTrades.length,
     };
   }

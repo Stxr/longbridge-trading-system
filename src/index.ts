@@ -3,9 +3,17 @@ import { QuoteProvider } from './modules/longbridge-integration/quote-provider';
 import { TradeProvider } from './modules/longbridge-integration/trade-provider';
 import { TradingModeManager, TradingMode } from './modules/trading-mode-manager';
 import { PercentageStrategy } from './modules/strategy-framework/percentage-strategy';
+import { HighLowReversionStrategy, HighLowConfig } from './modules/strategy-framework/high-low-reversion-strategy';
 import { BacktestEngine } from './modules/backtesting-engine';
 import { initDatabase } from './modules/data-management/database';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import dotenv from 'dotenv';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Shanghai');
 
 dotenv.config();
 
@@ -13,15 +21,30 @@ async function start() {
   await initDatabase();
 
   const mode = (process.env.TRADING_MODE as TradingMode) || 'live';
+  const strategyType = process.env.STRATEGY_TYPE || 'high-low';
   const targetSymbol = process.env.TARGET_SYMBOL || 'AGQ.US';
-  const initialRefPrice = process.env.INITIAL_REF_PRICE ? Number(process.env.INITIAL_REF_PRICE) : 130;
-  const threshold = process.env.STRATEGY_THRESHOLD ? Number(process.env.STRATEGY_THRESHOLD) : 0.05;
+  
   const quantity = process.env.STRATEGY_QUANTITY ? Number(process.env.STRATEGY_QUANTITY) : 10;
 
-  console.log(`Starting system in ${mode} mode for ${targetSymbol}...`);
-  console.log(`Strategy: Threshold=${threshold}, Quantity=${quantity}`);
+  console.log(`Starting system in ${mode} mode for ${targetSymbol} using ${strategyType} strategy...`);
 
-  const strategy = new PercentageStrategy(targetSymbol, initialRefPrice, threshold, quantity);
+  let strategy: any;
+
+  if (strategyType === 'percentage') {
+    const initialRefPrice = process.env.INITIAL_REF_PRICE ? Number(process.env.INITIAL_REF_PRICE) : 130;
+    const threshold = process.env.STRATEGY_THRESHOLD ? Number(process.env.STRATEGY_THRESHOLD) : 0.05;
+    strategy = new PercentageStrategy(targetSymbol, initialRefPrice, threshold, quantity);
+  } else {
+    // Default to High-Low Reversion
+    const config: HighLowConfig = {
+      symbol: targetSymbol,
+      periodType: 'daily',
+      buyThresholdPercent: process.env.BUY_THRESHOLD_PERCENT ? Number(process.env.BUY_THRESHOLD_PERCENT) : 0.05,
+      sellThresholdPercent: process.env.SELL_THRESHOLD_PERCENT ? Number(process.env.SELL_THRESHOLD_PERCENT) : 0.05,
+      quantity
+    };
+    strategy = new HighLowReversionStrategy([config]);
+  }
 
   if (mode === 'live') {
     const client = new LongbridgeClient();
@@ -31,7 +54,7 @@ async function start() {
     await quoteProvider.init();
     await tradeProvider.init();
 
-    const modeManager = new TradingModeManager('live', tradeProvider);
+    const modeManager = new TradingModeManager('live', tradeProvider, undefined, quoteProvider);
     strategy.setContext(modeManager.getStrategyContext());
 
     quoteProvider.setOnQuote((quote) => strategy.onQuote(quote));

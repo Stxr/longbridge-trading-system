@@ -1,4 +1,5 @@
 import { KLine, Quote, Order } from '../../shared/models/market-data';
+import { Period } from 'longport';
 
 export interface StrategyContext {
   mode: 'backtest' | 'live';
@@ -9,6 +10,7 @@ export interface StrategyContext {
     quantity: number;
   }) => Promise<string>;
   cancelOrder: (orderId: string) => Promise<void>;
+  getHistoryCandlesticks?: (symbol: string, period: Period, count: number) => Promise<KLine[]>;
 }
 
 export abstract class BaseStrategy {

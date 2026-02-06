@@ -1,4 +1,4 @@
-import { QuoteContext, SubType, PushQuoteEvent, PushCandlestickEvent, Period, TradeSessions } from 'longport';
+import { QuoteContext, SubType, PushQuoteEvent, PushCandlestickEvent, Period, TradeSessions, AdjustType, NaiveDate, Time, NaiveDatetime } from 'longport';
 import { LongbridgeClient } from './client';
 import { Quote, KLine, MarketSchema } from '../../shared/models/market-data';
 
@@ -37,6 +37,70 @@ export class QuoteProvider {
 
   setOnKLine(callback: (kline: KLine) => void) {
     this.onKLineCallback = callback;
+  }
+
+  async getHistoryCandlesticks(symbol: string, period: Period, count: number): Promise<KLine[]> {
+    const ctx = await this.client.getQuoteContext();
+    // historyCandlesticksByOffset(symbol, period, adjustType, forward, datetime, count, tradeSessions)
+    // datetime = undefined means from latest
+    const history = await ctx.historyCandlesticksByOffset(symbol, period, AdjustType.ForwardAdjust, false, undefined, count, TradeSessions.All);
+    return this.mapKLines(symbol, period, history);
+  }
+
+  /**
+   * Fetches historical data strictly BEFORE the given endDate (Date/Time precision).
+   */
+  async getHistoryCandlesticksBefore(
+    symbol: string,
+    period: Period,
+    count: number,
+    endDate: Date
+  ): Promise<KLine[]> {
+    const ctx = await this.client.getQuoteContext();
+    
+    const nd = new NaiveDate(
+      endDate.getUTCFullYear(),
+      endDate.getUTCMonth() + 1,
+      endDate.getUTCDate()
+    );
+    const nt = new Time(
+      endDate.getUTCHours(),
+      endDate.getUTCMinutes(),
+      endDate.getUTCSeconds()
+    );
+    const naiveDatetime = new NaiveDatetime(nd, nt);
+
+    // Using historyCandlesticksByOffset with forward=false and a specific datetime
+    // will return 'count' bars PRIOR to that datetime.
+    const history = await ctx.historyCandlesticksByOffset(
+      symbol, 
+      period, 
+      AdjustType.ForwardAdjust, 
+      false, 
+      naiveDatetime, 
+      count, 
+      TradeSessions.All
+    );
+    
+    return this.mapKLines(symbol, period, history);
+  }
+
+  private mapKLines(symbol: string, period: Period, history: any[]): KLine[] {
+    return history.map((data: any) => {
+      const [sym, marketStr] = symbol.split('.');
+      return {
+        symbol: sym,
+        market: MarketSchema.parse(marketStr),
+        period: period.toString(),
+        timestamp: data.timestamp.toISOString(),
+        open: Number(data.open),
+        high: Number(data.high),
+        low: Number(data.low),
+        close: Number(data.close),
+        volume: Number(data.volume),
+        turnover: Number(data.turnover),
+      };
+    });
   }
 
   private handleQuote(event: PushQuoteEvent) {

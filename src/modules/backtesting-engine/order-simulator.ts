@@ -56,9 +56,11 @@ export class OrderSimulator implements ITradeProvider {
 
   processKLine(kline: KLine) {
     const executedOrders: Order[] = [];
+    const fullSymbol = `${kline.symbol}.${kline.market}`;
 
     for (const order of this.pendingOrders) {
-      if (order.symbol !== kline.symbol) {
+      // FIX: Match against either full symbol (700.HK) or base symbol (700)
+      if (order.symbol !== kline.symbol && order.symbol !== fullSymbol) {
         continue;
       }
 

@@ -5,6 +5,7 @@ export const MarketSchema = z.enum(['HK', 'US', 'SH', 'SZ']);
 export const KLineSchema = z.object({
   symbol: z.string(),
   market: MarketSchema,
+  period: z.string().optional(), // e.g., '1m', '5m', '1d'
   timestamp: z.string(), // ISO 8601
   open: z.number(),
   high: z.number(),
