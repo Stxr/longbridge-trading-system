@@ -1,3 +1,4 @@
+// description: MACD 指标策略，利用平滑异同移动平均线的金叉与死叉捕捉动能方向。
 import { BaseStrategy } from './base-strategy';
 import { KLine, Quote, Order } from '../../shared/models/market-data';
 

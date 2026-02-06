@@ -1,3 +1,4 @@
+// description: 布林带策略，利用价格通道的收敛与扩张识别超买超卖和趋势反转。
 import { BaseStrategy } from './base-strategy';
 import { KLine, Quote, Order } from '../../shared/models/market-data';
 

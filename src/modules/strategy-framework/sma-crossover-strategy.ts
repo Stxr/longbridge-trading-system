@@ -1,3 +1,4 @@
+// description: 简单移动平均线交叉策略，利用短期与长期均线的金叉/死叉确定进出场点。
 import { BaseStrategy } from './base-strategy';
 import { KLine, Quote, Order } from '../../shared/models/market-data';
 

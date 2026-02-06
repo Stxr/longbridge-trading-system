@@ -30,28 +30,43 @@ LONGPORT_APP_SECRET=your_app_secret
 LONGPORT_ACCESS_TOKEN=your_access_token
 ```
 
-## 📊 数据同步工具
+## 📊 命令行工具 (lbt CLI)
 
-使用 `src/sync-data.ts` 可以将长桥的历史行情下载到本地，支持增量更新和多股票批量同步。
+本系统提供了一个名为 `lbt` 的命令行工具，极大地简化了日常操作。
 
-**命令格式：**
+### 1. 安装与初始化
+
+首先确保已安装项目依赖，然后执行 link 命令：
+
 ```bash
-npx ts-node src/sync-data.ts <股票代码> <数量或起始时间> <周期>
+npm install
+npm link
 ```
 
-**常见用法：**
-- **同步多个股票的日线**：
-  ```bash
-  npx ts-node src/sync-data.ts "700.HK, 9988.HK, TSLA.US" 100 1d
-  ```
-- **拉取特定时间段至今的分钟线**（自动分页递归回溯）：
-  ```bash
-  npx ts-node src/sync-data.ts "700.HK" 2026-01-01 1m
-  ```
-- **同步最近 5000 条分钟线**：
-  ```bash
-  npx ts-node src/sync-data.ts "700.HK" 5000 1m
-  ```
+### 2. 启用自动补全 (重要)
+
+`lbt` 支持强大的 Shell 自动补全（Bash, Zsh, Fish）。
+
+**Bash/Zsh 用户**：
+运行以下命令并按照提示操作：
+```bash
+lbt --completion
+```
+
+**Fish 用户**：
+运行以下命令以自动安装补全脚本：
+```fish
+mkdir -p ~/.config/fish/completions
+lbt --completion-fish > ~/.config/fish/completions/lbt.fish
+```
+*注：重启终端或运行 `source ~/.config/fish/config.fish` 后生效。*
+
+### 3. 常用命令
+
+- **列出策略**：`lbt list`
+- **同步数据**：`lbt sync 700.HK 1000 1m`
+- **回测策略**：`lbt backtest` (不带参数将进入交互模式)
+- **实盘交易**：`lbt live` (包含风险确认)
 
 ## 🧪 回测运行
 

@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "lbt": "./src/cli/index.ts"
+  },
   "scripts": {
     "start": "ts-node src/index.ts",
     "start:backtest": "ts-node src/test-backtest.ts",
@@ -15,14 +18,20 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "chalk": "^4.1.2",
+    "cli-table3": "^0.6.5",
+    "commander": "^14.0.3",
     "dayjs": "^1.11.19",
     "dotenv": "^17.2.3",
+    "inquirer": "^8.2.7",
     "knex": "^3.1.0",
     "longport": "^3.0.21",
+    "omelette": "^0.4.17",
     "sqlite3": "^5.1.7",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@types/inquirer": "^8.2.12",
     "@types/node": "^25.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"

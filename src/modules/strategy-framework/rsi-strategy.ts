@@ -1,3 +1,4 @@
+// description: RSI 强弱指标策略，通过相对强弱指数识别价格的超买与超卖状态。
 import { BaseStrategy } from './base-strategy';
 import { KLine, Quote, Order } from '../../shared/models/market-data';
 

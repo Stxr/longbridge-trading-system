@@ -1,3 +1,4 @@
+// description: Dual Thrust 区间突破策略，基于前 N 日价格区间设定的上下轨进行突破交易。
 import { BaseStrategy } from './base-strategy';
 import { KLine, Quote, Order } from '../../shared/models/market-data';
 

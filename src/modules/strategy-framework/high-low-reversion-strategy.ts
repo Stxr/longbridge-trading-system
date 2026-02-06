@@ -1,3 +1,4 @@
+// description: 高低点回归策略，追踪价格极值并在显著回调时寻找反转机会。
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';

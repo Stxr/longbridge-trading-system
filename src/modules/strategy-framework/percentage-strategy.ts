@@ -1,3 +1,4 @@
+// description: 跌买涨卖百分比策略，在价格下跌指定百分比时买入，上涨指定百分比时卖出。
 import { BaseStrategy } from './base-strategy';
 import { KLine, Quote, Order } from '../../shared/models/market-data';
 
