@@ -1,29 +1,31 @@
-## ADDED Requirements
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+## 新增需求
 
-### Requirement: Environment Isolation
-The system SHALL maintain strict isolation between backtesting and live trading environments to prevent accidental live execution.
+### 需求：Environment Isolation
+系统应在 backtesting 和 live trading 环境之间保持严格隔离，以防止意外执行实盘操作。
 
-#### Scenario: Running a backtest
-- **WHEN** the system is in "backtest" mode
-- **THEN** it is physically impossible for the strategy to call the live Longbridge Trade API
+#### 场景：Running a backtest
+- **当** 系统处于 "backtest" 模式时
+- **那么** 策略在物理上不可能调用实盘 Longbridge Trade API
 
-### Requirement: Explicit Mode Switching
-The system SHALL require an explicit configuration or command-line flag to enable live trading mode.
+### 需求：Explicit Mode Switching
+系统应要求通过显式配置或命令行标志来启用 live trading 模式。
 
-#### Scenario: Switching to live mode
-- **WHEN** the user starts the system with `--mode live`
-- **THEN** the system prompts for a final confirmation before initializing the live trading environment
+#### 场景：Switching to live mode
+- **当** 用户使用 `--mode live` 启动系统时
+- **那么** 系统在初始化 live trading 环境前提示进行最终确认
 
-### Requirement: Live Trading Safeguards
-The system SHALL implement safeguards such as order size limits and mandatory dry-runs before allowing full live execution.
+### 需求：Live Trading Safeguards
+系统应实施安全保障措施，例如 order size limits 和强制性 dry-runs，然后才允许全自动实盘执行。
 
-#### Scenario: Enforcing max order size
-- **WHEN** a live strategy attempts to place an order exceeding a pre-configured maximum size
-- **THEN** the system rejects the order and alerts the user
+#### 场景：Enforcing max order size
+- **当** 一个 live 策略尝试下达超过预设最大规模的订单时
+- **那么** 系统拒绝该订单并向用户发出警报
 
-### Requirement: Strategy Validation before Deployment
-The system SHALL perform a validation check on the strategy (e.g., verifying parameters) before allowing it to run in live mode.
+### 需求：Strategy Validation before Deployment
+系统应在允许策略以 live 模式运行前对其进行验证检查（例如，验证 parameters）。
 
-#### Scenario: Deploying an unvalidated strategy
-- **WHEN** a user attempts to run a strategy in live mode without required parameters
-- **THEN** the system prevents execution and specifies the missing configuration
+#### 场景：Deploying an unvalidated strategy
+- **当** 用户尝试在缺少必要 parameters 的情况下以 live 模式运行策略时
+- **那么** 系统阻止执行并指明缺失的配置

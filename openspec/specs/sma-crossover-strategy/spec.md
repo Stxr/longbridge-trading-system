@@ -1,24 +1,30 @@
-# SMA Crossover Strategy
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+I will translate the `specs/sma-crossover-strategy/spec.md` file into Chinese, maintaining its original structure and technical terminology.
 
-## Purpose
-A trend-following strategy that generates signals based on the crossover of two simple moving averages (SMAs) of different periods.
+I will now overwrite the `specs/sma-crossover-strategy/spec.md` file with the Chinese translation, ensuring all formatting and technical terms remain intact.
 
-## Requirements
+# SMA Crossover 策略
 
-### Requirement: Trend-following signal generation
-The SMA Crossover strategy SHALL generate signals based on the crossover of a short-period simple moving average (SMA) and a long-period SMA.
+## 目的
+一种趋势跟踪策略，根据两个不同周期的简单移动平均线 (SMA) 的交叉生成信号。
 
-#### Scenario: Bullish crossover signal
-- **WHEN** the short-period SMA crosses above the long-period SMA
-- **THEN** the strategy SHALL emit a BUY signal
+## 需求
 
-#### Scenario: Bearish crossover signal
-- **WHEN** the short-period SMA crosses below the long-period SMA
-- **THEN** the strategy SHALL emit a SELL signal
+### 需求：趋势跟踪信号生成
+SMA Crossover 策略应根据短期简单移动平均线 (SMA) 和长期 SMA 的交叉生成信号。
 
-### Requirement: Parameter configuration
-The strategy MUST allow configuration of the short-period and long-period intervals.
+#### 场景：Bullish 交叉信号
+- **当** 短期 SMA 向上穿过长期 SMA 时
+- **那么** 策略应发出 BUY 信号
 
-#### Scenario: Customizing intervals
-- **WHEN** the strategy is initialized with short-period 50 and long-period 200
-- **THEN** it SHALL use those specific windows for SMA calculations
+#### 场景：Bearish 交叉信号
+- **当** 短期 SMA 向下穿过长期 SMA 时
+- **那么** 策略应发出 SELL 信号
+
+### 需求：参数配置
+策略必须允许配置短期和长期周期。
+
+#### 场景：自定义周期
+- **当** 策略初始化为短期周期 50 和长期周期 200 时
+- **那么** 它应使用这些特定的窗口进行 SMA 计算

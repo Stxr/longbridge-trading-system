@@ -1,43 +1,47 @@
-## ADDED Requirements
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+I will translate the provided requirements into Chinese, preserving all Markdown formatting and technical terms.
 
-### Requirement: Authentication with Longbridge OpenAPI
-The system SHALL authenticate with Longbridge OpenAPI using an App Key, App Secret, and Access Token.
+## 新增需求
 
-#### Scenario: Successful authentication
-- **WHEN** the system initializes with valid Longbridge credentials
-- **THEN** it establishes a persistent connection for both Quote and Trade APIs
+### 需求：Longbridge OpenAPI 身份验证
+系统应使用 App Key、App Secret 和 Access Token 通过 Longbridge OpenAPI 进行身份验证。
 
-### Requirement: Real-time Market Data Subscription
-The system SHALL support subscribing to real-time quotes, depth, and trades for supported markets (HK, US, SH, SZ).
+#### 场景：身份验证成功
+- **当** 系统使用有效的 Longbridge 凭据初始化时
+- **那么** 它将为 Quote（行情）和 Trade（交易）API 建立持久连接
 
-#### Scenario: Subscribe to HK stock quotes
-- **WHEN** the system requests a subscription for "700.HK" (Tencent)
-- **THEN** it receives real-time price updates through a WebSocket connection
+### 需求：实时市场数据订阅
+系统应支持订阅支持的市场（香港、美国、上海、深圳）的实时报价、深度数据和成交明细。
 
-### Requirement: Historical Data Retrieval
-The system SHALL retrieve historical K-line data for specified symbols, intervals, and time ranges.
+#### 场景：订阅港股报价
+- **当** 系统请求订阅“700.HK”（腾讯控股）时
+- **那么** 它将通过 WebSocket 连接接收实时价格更新
 
-#### Scenario: Fetch daily K-lines for backtesting
-- **WHEN** the system requests daily K-lines for "AAPL.US" for the past year
-- **THEN** it receives a structured list of OHLCV data points
+### 需求：历史数据获取
+系统应根据指定的代码、周期和时间范围检索历史 K 线数据。
 
-### Requirement: Live Order Execution
-The system SHALL allow creating, canceling, and amending orders via the Longbridge Trade API.
+#### 场景：获取日 K 线用于回测
+- **当** 系统请求“AAPL.US”过去一年的日 K 线时
+- **那么** 它将接收到一个结构化的 OHLCV 数据点列表
 
-#### Scenario: Submit a limit buy order
-- **WHEN** a strategy triggers a buy signal for 100 shares of "NVDA.US" at $120.00
-- **THEN** the system submits a limit buy order and receives an order ID and initial status
+### 需求：实盘订单执行
+系统应允许通过 Longbridge Trade API 创建、撤销和修改订单。
 
-### Requirement: Real-time Account State Synchronization
-The system SHALL synchronize account balance, positions, and order status in real-time from the Longbridge Trade API.
+#### 场景：提交限价买入订单
+- **当** 策略触发“NVDA.US”在 $120.00 买入 100 股的信号时
+- **那么** 系统将提交一个限价买入订单，并接收订单 ID 和初始状态
 
-#### Scenario: Update position after order fill
-- **WHEN** an order is filled on the exchange
-- **THEN** the system receives a trade notification and updates the local position state immediately
+### 需求：实时账户状态同步
+系统应通过 Longbridge Trade API 实时同步账户余额、持仓和订单状态。
 
-### Requirement: API Rate Limiting and Safety
-The system SHALL strictly enforce Longbridge API rate limits (e.g., 30 calls/30 seconds for Trade API) and handle API errors gracefully.
+#### 场景：成交后更新持仓
+- **当** 订单在交易所成交时
+- **那么** 系统将收到成交通知并立即更新本地持仓状态
 
-#### Scenario: Rate limit reached
-- **WHEN** the strategy attempts to send orders exceeding the 30 calls/30 seconds limit
-- **THEN** the system queues the requests and delays execution to remain within limits
+### 需求：API 频率限制与安全
+系统应严格执行 Longbridge API 的频率限制（例如：交易 API 每 30 秒 30 次调用），并优雅地处理 API 错误。
+
+#### 场景：达到频率限制
+- **当** 策略尝试发送超过每 30 秒 30 次限制的订单时
+- **那么** 系统将对请求进行排队并延迟执行，以保持在限制范围内

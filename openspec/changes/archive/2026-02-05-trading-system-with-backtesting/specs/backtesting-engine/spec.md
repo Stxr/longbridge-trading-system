@@ -1,29 +1,31 @@
-## ADDED Requirements
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+## 新增需求
 
-### Requirement: Historical Data Replay
-The backtesting engine SHALL replay historical market data sequentially to simulate the passage of time.
+### 需求：历史数据回放
+回测引擎应当（SHALL）按顺序回放历史市场数据，以模拟时间的流逝。
 
-#### Scenario: Replaying one month of 1-minute data
-- **WHEN** the engine starts a backtest for January 2024
-- **THEN** it iterates through each 1-minute bar and triggers strategy events in chronological order
+#### 场景：回放一个月的 1 分钟数据
+- **当** 引擎开始 2024 年 1 月的回测时
+- **那么** 它会按时间顺序遍历每一个 1 分钟 bar，并触发策略事件
 
-### Requirement: Order Execution Simulation
-The engine SHALL simulate order execution based on historical price action, including support for market and limit orders.
+### 需求：订单执行模拟
+引擎应当基于历史价格走势模拟订单执行，包括支持市价单（market order）和限价单（limit order）。
 
-#### Scenario: Limit order fill at specified price
-- **WHEN** a strategy submits a limit buy order at $150.00
-- **THEN** the engine fills the order when the historical low price of a bar is less than or equal to $150.00
+#### 场景：限价单在指定价格成交
+- **当** 策略提交一个 $150.00 的限价买入单时
+- **那么** 当某一 bar 的历史最低价小于或等于 $150.00 时，引擎成交该订单
 
-### Requirement: Slippage and Commission Modeling
-The system SHALL support configurable slippage and commission models to accurately reflect trading costs.
+### 需求：滑点与佣金建模
+系统应当支持可配置的滑点和佣金模型，以准确反映交易成本。
 
-#### Scenario: Apply fixed commission and percentage slippage
-- **WHEN** a trade is executed in backtesting
-- **THEN** the engine deducts the specified commission and adjusts the fill price based on the slippage model
+#### 场景：应用固定佣金和百分比滑点
+- **当** 在回测中执行一笔交易时
+- **那么** 引擎扣除指定的佣金，并根据滑点模型调整成交价格
 
-### Requirement: Portfolio State Simulation
-The engine SHALL track simulated account balance, positions, and margin usage throughout the backtest.
+### 需求：投资组合状态模拟
+引擎应当在整个回测过程中跟踪模拟的账户余额、持仓和保证金使用情况。
 
-#### Scenario: Tracking equity curve
-- **WHEN** trades are executed and market prices change
-- **THEN** the engine updates the total account equity and records it for performance analysis
+#### 场景：追踪权益曲线
+- **当** 交易执行且市场价格发生变化时
+- **那么** 引擎更新总账户权益，并记录下来用于性能分析

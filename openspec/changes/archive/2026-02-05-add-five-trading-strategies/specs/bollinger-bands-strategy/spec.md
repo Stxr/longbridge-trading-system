@@ -1,19 +1,21 @@
-## ADDED Requirements
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+## 新增需求
 
-### Requirement: Volatility-based mean reversion signal generation
-The Bollinger Bands strategy SHALL generate signals when the price breaks outside of the calculated standard deviation bands.
+### 需求：基于波动率的均值回归信号生成
+布林带 (Bollinger Bands) 策略应在价格突破计算的标准差带时生成信号。
 
-#### Scenario: Price breaks below lower band
-- **WHEN** the current market price is less than or equal to the lower Bollinger Band
-- **THEN** the strategy SHALL emit a BUY signal
+#### 场景：价格跌破下轨
+- **当** 当前市场价格小于或等于布林带下轨时
+- **那么** 策略应发出买入 (BUY) 信号
 
-#### Scenario: Price breaks above upper band
-- **WHEN** the current market price is greater than or equal to the upper Bollinger Band
-- **THEN** the strategy SHALL emit a SELL signal
+#### 场景：价格突破上轨
+- **当** 当前市场价格大于或等于布林带上轨时
+- **那么** 策略应发出卖出 (SELL) 信号
 
-### Requirement: Band calculation
-The strategy SHALL calculate the middle band as a simple moving average, and upper/lower bands as N standard deviations away from the middle band.
+### 需求：轨道计算
+策略应将中轨计算为简单移动平均线 (SMA)，将上轨/下轨计算为距离中轨 N 个标准差。
 
-#### Scenario: Default band calculation
-- **WHEN** market data is received
-- **THEN** the strategy SHALL compute the 20-period SMA and bands at 2 standard deviations by default
+#### 场景：默认轨道计算
+- **当** 接收到市场数据时
+- **那么** 策略应默认计算 20 周期的 SMA 以及 2 个标准差的轨道

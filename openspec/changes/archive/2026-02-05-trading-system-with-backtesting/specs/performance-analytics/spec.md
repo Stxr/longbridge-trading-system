@@ -1,29 +1,31 @@
-## ADDED Requirements
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+## 已添加的需求
 
-### Requirement: Performance Metric Calculation
-The system SHALL calculate standard performance metrics, including Total Return, Annualized Return, Sharpe Ratio, and Maximum Drawdown.
+### 需求：性能指标计算
+系统应计算标准性能指标，包括总收益率 (Total Return)、年化收益率 (Annualized Return)、夏普比率 (Sharpe Ratio) 和最大回撤 (Maximum Drawdown)。
 
-#### Scenario: Generate metrics after backtest
-- **WHEN** a backtest finishes
-- **THEN** the system outputs a summary of the strategy's risk-adjusted performance
+#### 场景：回测后生成指标
+- **当** 回测结束时
+- **那么** 系统输出该策略风险调整后性能的摘要
 
-### Requirement: Equity Curve Generation
-The system SHALL generate an equity curve representing the account value over time.
+### 需求：权益曲线生成
+系统应生成一条代表账户价值随时间变化的权益曲线。
 
-#### Scenario: Visualizing performance
-- **WHEN** requested by the user
-- **THEN** the system produces a series of data points representing the daily or per-trade account equity
+#### 场景：可视化性能
+- **当** 用户请求时
+- **那么** 系统生成一系列代表每日或每笔交易账户权益的数据点
 
-### Requirement: Strategy Comparison
-The system SHALL support comparing the performance of multiple strategies or different parameters for the same strategy.
+### 需求：策略对比
+系统应支持对比多个策略或同一策略不同参数的性能。
 
-#### Scenario: Compare two MA crossover variations
-- **WHEN** two backtests are completed
-- **THEN** the system provides a side-by-side comparison of their key performance indicators
+#### 场景：对比两个均线交叉变体
+- **当** 两个回测完成时
+- **那么** 系统提供它们关键性能指标的横向对比
 
-### Requirement: Unified Reporting
-The system SHALL provide unified reports that can aggregate and compare performance from both backtesting and live trading sessions.
+### 需求：统一报告
+系统应提供统一的报告，能够汇总并对比回测和实盘交易会话的性能。
 
-#### Scenario: Compare backtest vs live performance
-- **WHEN** a strategy has been both backtested and run in live trading
-- **THEN** the system generates a report showing the performance correlation between the two environments
+#### 场景：对比回测与实盘性能
+- **当** 一个策略既经过了回测又在实盘中运行
+- **那么** 系统生成一份报告，展示两个环境之间的性能相关性

@@ -1,19 +1,21 @@
-## ADDED Requirements
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+### 新增需求
 
-### Requirement: Momentum-based signal generation
-The RSI strategy SHALL generate signals based on overbought and oversold thresholds of the Relative Strength Index.
+### 需求：基于动量的信号生成
+RSI 策略应当根据相对强弱指数 (Relative Strength Index) 的超买和超卖阈值生成信号。
 
-#### Scenario: Oversold condition
-- **WHEN** the RSI value falls below the oversold threshold (default 30)
-- **THEN** the strategy SHALL emit a BUY signal
+#### 场景：超卖条件
+- **当 (WHEN)** RSI 值跌破超卖阈值（默认为 30）时
+- **那么 (THEN)** 策略应当发出买入 (BUY) 信号
 
-#### Scenario: Overbought condition
-- **WHEN** the RSI value rises above the overbought threshold (default 70)
-- **THEN** the strategy SHALL emit a SELL signal
+#### 场景：超买条件
+- **当 (WHEN)** RSI 值升破超买阈值（默认为 70）时
+- **那么 (THEN)** 策略应当发出卖出 (SELL) 信号
 
-### Requirement: Threshold configuration
-The strategy MUST allow users to configure the overbought and oversold threshold levels.
+### 需求：阈值配置
+策略必须允许用户配置超买和超卖阈值水平。
 
-#### Scenario: Custom thresholds
-- **WHEN** the strategy is configured with an oversold threshold of 20 and overbought of 80
-- **THEN** it SHALL only emit signals when those specific levels are breached
+#### 场景：自定义阈值
+- **当 (WHEN)** 策略配置了 20 的超卖阈值和 80 的超买阈值时
+- **那么 (THEN)** 它应当仅在突破这些特定水平时发出信号

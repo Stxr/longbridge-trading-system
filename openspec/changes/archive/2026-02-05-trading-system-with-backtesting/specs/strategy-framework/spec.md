@@ -1,29 +1,31 @@
-## ADDED Requirements
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+I will translate the provided requirements into Chinese, ensuring that all Markdown formatting and technical terms remain intact.
 
-### Requirement: Unified Strategy Interface
-The system SHALL provide a base strategy interface that allows users to implement custom trading logic.
+### 需求：统一策略接口 (Unified Strategy Interface)
+系统应提供一个基础策略接口，允许用户实现自定义交易逻辑。
 
-#### Scenario: Implement a simple MA crossover strategy
-- **WHEN** a user defines a class inheriting from the base strategy
-- **THEN** they can override lifecycle methods to implement entry and exit rules
+#### 场景：实现一个简单的均线交叉 (MA crossover) 策略
+- **当** 用户定义一个继承自基础策略的类时
+- **那么** 他们可以重写生命周期方法来实现入场和出场规则
 
-### Requirement: Strategy Lifecycle Hooks
-The system SHALL execute strategy lifecycle hooks (e.g., `on_init`, `on_data`, `on_order_update`, `on_stop`) during execution.
+### 需求：策略生命周期钩子 (Strategy Lifecycle Hooks)
+系统应在执行期间执行策略生命周期钩子（例如：`on_init`、`on_data`、`on_order_update`、`on_stop`）。
 
-#### Scenario: Processing new market data
-- **WHEN** new market data (e.g., a new K-line) is received
-- **THEN** the system calls the `on_data` hook of the active strategy
+#### 场景：处理新行情数据
+- **当** 接收到新的行情数据（例如：一条新的 K 线）时
+- **那么** 系统调用当前活跃策略的 `on_data` 钩子
 
-### Requirement: Cross-Environment Strategy Reusability
-Strategies developed for backtesting SHALL be directly executable in live trading without code modifications.
+### 需求：跨环境策略复用性 (Cross-Environment Strategy Reusability)
+为回测开发的策略应在无需修改代码的情况下，直接在实盘交易中执行。
 
-#### Scenario: Deploying a backtested strategy to live
-- **WHEN** a user switches the trading mode from "backtest" to "live" using the same strategy class
-- **THEN** the strategy interacts with the Longbridge Trade API instead of the simulation engine
+#### 场景：将回测过的策略部署到实盘
+- **当** 用户使用相同的策略类，将交易模式从 "backtest"（回测）切换到 "live"（实盘）时
+- **那么** 策略将与 Longbridge Trade API 交互，而不是模拟引擎
 
-### Requirement: Strategy Parameter Configuration
-The system SHALL support configuring strategy parameters (e.g., moving average periods) via a configuration file or initialization parameters.
+### 需求：策略参数配置 (Strategy Parameter Configuration)
+系统应支持通过配置文件或初始化参数来配置策略参数（例如：移动平均线周期）。
 
-#### Scenario: Optimize strategy parameters
-- **WHEN** a user initializes a strategy with different parameter values
-- **THEN** the strategy uses those values during its execution lifecycle
+#### 场景：优化策略参数
+- **当** 用户使用不同的参数值初始化策略时
+- **那么** 策略在其执行生命周期中使用这些值

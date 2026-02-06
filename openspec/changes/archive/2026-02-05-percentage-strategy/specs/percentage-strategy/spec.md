@@ -1,26 +1,28 @@
-## ADDED Requirements
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+## 新增需求
 
-### Requirement: Signal Generation Based on 5% Price Change
-The system SHALL monitor real-time quotes and generate a buy signal when the price drops by 5% from a reference point, and a sell signal when the price rises by 5% from a reference point.
+### 需求：基于 5% 价格变化的信号生成
+系统 SHALL 监控实时行情，并在价格较参考点下跌 5% 时生成一个 BUY 信号，并在价格较参考点上涨 5% 时生成一个 SELL 信号。
 
-#### Scenario: Price drops by 5%
-- **WHEN** the current price is $95.00 and the reference entry price was $100.00
-- **THEN** the system generates a BUY signal
+#### 场景：价格下跌 5%
+- **WHEN** 当前价格为 $95.00 且参考入场价格为 $100.00
+- **THEN** 系统生成一个 BUY 信号
 
-#### Scenario: Price rises by 5%
-- **WHEN** the current price is $105.00 and the reference entry price was $100.00
-- **THEN** the system generates a SELL signal
+#### 场景：价格上涨 5%
+- **WHEN** 当前价格为 $105.00 且参考入场价格为 $100.00
+- **THEN** 系统生成一个 SELL 信号
 
-### Requirement: Live Order Triggering
-The system SHALL automatically submit a limit or market order to the Longbridge Trade API upon receiving a strategy signal.
+### 需求：实时订单触发
+系统 SHALL 在接收到策略信号时，自动向 Longbridge Trade API 提交一个 limit 或 market order。
 
-#### Scenario: Submitting a buy order on signal
-- **WHEN** a BUY signal is generated
-- **THEN** the system calls the `submitOrder` method with the configured quantity and market symbol
+#### 场景：根据信号提交买入订单
+- **WHEN** 生成一个 BUY 信号
+- **THEN** 系统使用配置的 quantity 和 market symbol 调用 `submitOrder` 方法
 
-### Requirement: Signal and Execution Logging
-The system SHALL log every generated signal and the resulting order status for audit and verification purposes.
+### 需求：信号与执行日志记录
+系统 SHALL 记录每一个生成的信号和产生的 order status，以便于审计和验证。
 
-#### Scenario: Logging a sell signal
-- **WHEN** a SELL signal is triggered
-- **THEN** the system writes a log entry containing the timestamp, symbol, trigger price, and signal type
+#### 场景：记录卖出信号
+- **WHEN** 触发一个 SELL 信号
+- **THEN** 系统写入一条包含 timestamp、symbol、trigger price 和 signal type 的日志条目

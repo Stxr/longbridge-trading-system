@@ -1,34 +1,36 @@
-## Context
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+## 背景
 
-The strategy needs to be implemented within the existing `strategy-framework`. It will extend `BaseStrategy` and use real-time quotes to monitor price changes. The initial price received after initialization will serve as the first reference point.
+该策略需要在现有的 `strategy-framework` 中实现。它将继承 `BaseStrategy` 并使用实时行情（real-time quotes）来监控价格变化。初始化后收到的初始价格将作为第一个参考点。
 
-## Goals / Non-Goals
+## 目标 / 非目标
 
-**Goals:**
-- Implement a pluggable strategy class `PercentageStrategy`.
-- Track a reference price to calculate percentage changes.
-- Automatically trigger buy/sell orders via the `TradingModeManager`.
-- Provide clear logging for all signal triggers.
+**目标：**
+- 实现一个可插拔的策略类 `PercentageStrategy`。
+- 跟踪参考价格以计算百分比变化。
+- 通过 `TradingModeManager` 自动触发买入/卖出订单。
+- 为所有信号触发提供清晰的日志。
 
-**Non-Goals:**
-- Sophisticated position sizing (use fixed quantity for testing).
-- Multiple entry/exit logic (simple one-shot buy/sell sequence for testing).
+**非目标：**
+- 复杂的仓位管理（测试时使用固定数量）。
+- 多重进场/离场逻辑（测试时使用简单的单次买入/卖出序列）。
 
-## Decisions
+## 决策
 
-### 1. Strategy State Management
-**Decision**: Store `referencePrice` and `hasPosition` in the strategy instance.
-**Rationale**: Keeps the testing logic simple and self-contained. The strategy starts by capturing the first quote as the `referencePrice`.
+### 1. 策略状态管理
+**决策**：在策略实例中存储 `referencePrice` 和 `hasPosition`。
+**原理**：保持测试逻辑简单且自包含。策略通过捕获第一个行情作为 `referencePrice` 开始。
 
-### 2. Signal Triggering
-**Decision**: Use real-time quotes (`onQuote`) instead of K-lines for lower latency in testing.
-**Rationale**: Rapid validation of API responsiveness is better achieved with the highest frequency data available.
+### 2. 信号触发
+**决策**：在测试中使用实时行情 (`onQuote`) 而不是 K 线（K-lines），以降低延迟。
+**原理**：使用最高频率的数据可以更好地快速验证 API 的响应能力。
 
-### 3. Order Type
-**Decision**: Use Limit orders set at the current market price (or slightly offset) to ensure predictable execution price in testing.
-**Rationale**: Simulates more realistic trading than pure market orders while still achieving fast fills.
+### 3. 订单类型
+**决策**：使用设置为当前市场价格（或略有偏移）的限价单（Limit orders），以确保测试中执行价格的可预测性。
+**原理**：比单纯的市价单更真实地模拟交易，同时仍能实现快速成交。
 
-## Risks / Trade-offs
+## 风险 / 权衡
 
-- [Risk] Fast price oscillations → [Mitigation] Implement a simple cooldown or state flag (`hasPosition`) to prevent rapid-fire order submission.
-- [Risk] API Disconnection → [Mitigation] Rely on the underlying `LongbridgeClient` reconnection logic; the strategy will resume monitoring upon receiving the next quote.
+- [风险] 价格快速波动 → [缓解措施] 实现简单的冷却时间或状态标志 (`hasPosition`)，以防止高频发送订单。
+- [风险] API 断开连接 → [缓解措施] 依赖底层的 `LongbridgeClient` 重连逻辑；策略将在收到下一个行情时恢复监控。

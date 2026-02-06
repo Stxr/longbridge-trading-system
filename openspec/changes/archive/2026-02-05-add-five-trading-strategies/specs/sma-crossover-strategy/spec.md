@@ -1,19 +1,23 @@
-## ADDED Requirements
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+我将把这段 Markdown 文档翻译成中文，并保留原有的格式、结构和技术术语。
 
-### Requirement: Trend-following signal generation
-The SMA Crossover strategy SHALL generate signals based on the crossover of a short-period simple moving average (SMA) and a long-period SMA.
+## 新增需求
 
-#### Scenario: Bullish crossover signal
-- **WHEN** the short-period SMA crosses above the long-period SMA
-- **THEN** the strategy SHALL emit a BUY signal
+### 需求：趋势跟随信号生成
+SMA Crossover 策略应基于短周期简单移动平均线 (SMA) 和长周期 SMA 的交叉生成信号。
 
-#### Scenario: Bearish crossover signal
-- **WHEN** the short-period SMA crosses below the long-period SMA
-- **THEN** the strategy SHALL emit a SELL signal
+#### 场景：看涨交叉信号
+- **WHEN** 短周期 SMA 向上穿越长周期 SMA
+- **THEN** 策略应发出 BUY 信号
 
-### Requirement: Parameter configuration
-The strategy MUST allow configuration of the short-period and long-period intervals.
+#### 场景：看跌交叉信号
+- **WHEN** 短周期 SMA 向下穿越长周期 SMA
+- **THEN** 策略应发出 SELL 信号
 
-#### Scenario: Customizing intervals
-- **WHEN** the strategy is initialized with short-period 50 and long-period 200
-- **THEN** it SHALL use those specific windows for SMA calculations
+### 需求：参数配置
+策略必须允许配置 short-period 和 long-period 间隔。
+
+#### 场景：自定义间隔
+- **WHEN** 策略以 short-period 50 和 long-period 200 初始化
+- **THEN** 它应使用这些特定的窗口进行 SMA 计算

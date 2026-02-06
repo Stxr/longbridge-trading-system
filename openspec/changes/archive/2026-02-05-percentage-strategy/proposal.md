@@ -1,26 +1,28 @@
-## Why
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+## 初衷
 
-This change implements a lightweight percentage-based trading strategy to rapidly validate the functionality and reliability of live trading APIs (order creation, cancellation, execution) and end-to-end strategy execution workflows. The simple 5% price trigger rule eliminates complex logic overhead, allowing for quick testing of core trading pipeline integration—including market data ingestion, strategy signal generation, order routing to the exchange, and real-time trade status sync—without unnecessary complexity. This fast validation is critical to confirm API connectivity and strategy execution validity early, before developing more sophisticated trading logic.
+此变更实现了一种轻量级的基于百分比的交易策略，旨在快速验证实盘交易 API（订单创建、撤单、执行）的功能可靠性以及端到端策略执行流程。简单的 5% 价格触发规则消除了复杂的逻辑开销，从而能够快速测试核心交易管道的集成情况——包括市场数据摄取、策略信号生成、订单路由至交易所以及实时成交状态同步——而无需不必要的复杂性。这种快速验证对于在开发更复杂的交易逻辑之前，尽早确认 API 连通性和策略执行的有效性至关重要。
 
-## What Changes
+## 改动内容
 
-- Implement a minimal percentage-strategy with core logic: generate a buy signal when the target asset's price drops by 5% and a sell signal when the price rises by 5% (price based on real-time market quotes).
-- Integrate the strategy with existing live trading API layers to trigger actual order submission for rapid end-to-end testing of buy/sell API functionality.
-- Add basic signal logging and trade execution status tracking to verify strategy trigger accuracy and API response reliability.
-- Keep the strategy logic lightweight with no additional complex filters or risk management rules (optimized for fast testing).
+- 实现一个极简的 `percentage-strategy`，其核心逻辑为：当目标资产价格下跌 5% 时生成买入信号，当价格上涨 5% 时生成卖出信号（价格基于实时市场行情）。
+- 将该策略与现有的实盘交易 API 层集成，以触发实际的订单提交，从而对买入/卖出 API 功能进行快速端到端测试。
+- 添加基础的信号日志记录和交易执行状态跟踪，以验证策略触发的准确性和 API 响应的可靠性。
+- 保持策略逻辑轻量化，不添加额外的复杂过滤器或风险管理规则（专为快速测试而优化）。
 
-## Capabilities
+## 功能特性
 
-### New Capabilities
+### 新增功能
 
-- `percentage-strategy`: Implementation of a simple strategy that buys on a 5% price drop and sells on a 5% price rise, designed for rapid validation of live trading APIs and strategy execution effectiveness; includes real-time signal generation, live order triggering, and basic execution status logging.
+- `percentage-strategy`：实现一种简单的策略，在价格下跌 5% 时买入，在价格上涨 5% 时卖出，旨在快速验证实盘交易 API 和策略执行的有效性；包括实时信号生成、实盘订单触发以及基础执行状态日志记录。
 
-### Modified Capabilities
-<!-- No requirement changes to existing capabilities -->
+### 修改的功能
+<!-- 现有功能的需求无变更 -->
 
-## Impact
+## 影响
 
-- **Existing Modules**: Leverages existing live trading API integration (order create/query/execute) and real-time market data retrieval modules—no new external dependencies added.
-- **Architecture**: Lightweight code addition to the strategy framework layer (pluggable, no modification to core system architecture).
-- **Storage**: Writes minimal execution logs (signal trigger, order status) for testing verification—no additional database storage overhead.
-- **Constraints**: Follows existing API rate limiting and order execution rules to avoid violating exchange/API provider constraints during testing.
+- **现有模块**：利用现有的实盘交易 API 集成（订单创建/查询/执行）和实时市场数据获取模块——未添加新的外部依赖。
+- **架构**：对策略框架层进行轻量级代码添加（可插拔，不对核心系统架构进行修改）。
+- **存储**：记录最少的执行日志（信号触发、订单状态）用于测试验证——无额外的数据库存储开销。
+- **约束**：遵循现有的 API 速率限制和订单执行规则，以避免在测试期间违反交易所/API 提供商的限制。

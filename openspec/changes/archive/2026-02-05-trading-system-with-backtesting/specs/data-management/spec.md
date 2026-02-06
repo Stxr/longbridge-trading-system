@@ -1,29 +1,31 @@
-## ADDED Requirements
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+## 新增需求
 
-### Requirement: Historical Data Storage
-The system SHALL store historical market data in a persistent database (e.g., SQLite or PostgreSQL) for efficient retrieval.
+### 需求：历史数据存储
+系统应当将历史行情数据存储在持久化数据库（例如 SQLite 或 PostgreSQL）中，以实现高效检索。
 
-#### Scenario: Save downloaded K-lines
-- **WHEN** historical data is fetched from Longbridge API
-- **THEN** the system saves it to the local database to avoid redundant API calls
+#### 场景：保存下载的 K 线数据
+- **当** 从 Longbridge API 获取历史数据时
+- **那么** 系统将其保存到本地数据库，以避免冗余的 API 调用
 
-### Requirement: Unified Data Model
-The system SHALL use a unified data model for market data across backtesting (historical) and live trading (real-time).
+### 需求：统一数据模型
+系统应当在回测（历史）和实盘交易（实时）中使用统一的行情数据模型。
 
-#### Scenario: Consistently formatted price updates
-- **WHEN** a strategy receives a price update
-- **THEN** the data object structure is identical whether it originated from the database or the real-time WebSocket
+#### 场景：一致格式的价格更新
+- **当** 策略接收到价格更新时
+- **那么** 无论数据源自数据库还是实时 WebSocket，数据对象结构都是一致的
 
-### Requirement: Multi-timeframe Support
-The system SHALL support managing and retrieving data for multiple timeframes (e.g., 1min, 5min, 15min, 1h, daily).
+### 需求：多时间框架支持
+系统应当支持管理和检索多个时间框架（例如 1min, 5min, 15min, 1h, daily）的数据。
 
-#### Scenario: Requesting 5-minute bars
-- **WHEN** a strategy requires 5-minute interval data
-- **THEN** the data manager retrieves or aggregates the required data points for the strategy
+#### 场景：请求 5 分钟 K 线
+- **当** 策略需要 5 分钟间隔的数据时
+- **那么** 数据管理器为策略检索或聚合所需的数据点
 
-### Requirement: Data Caching
-The system SHALL implement a caching layer to speed up data access for frequently used symbols and timeframes.
+### 需求：数据缓存
+系统应当实现缓存层，以加速对常用代码和时间框架的数据访问。
 
-#### Scenario: Second access to AAPL 1-minute data
-- **WHEN** a backtest is rerun for the same symbol and period
-- **THEN** the system retrieves the data from the local cache instead of the primary database
+#### 场景：第二次访问 AAPL 1 分钟数据
+- **当** 对相同的代码和周期重新运行回测时
+- **那么** 系统从本地缓存而非主数据库检索数据

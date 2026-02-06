@@ -1,12 +1,14 @@
-## 1. Strategy Implementation
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+## 1. 策略实现
 
-- [x] 1.1 Create `PercentageStrategy.ts` in `src/modules/strategy-framework/`
-- [x] 1.2 Implement initialization logic to capture reference price
-- [x] 1.3 Implement 5% drop/rise detection logic in `onQuote`
-- [x] 1.4 Implement order triggering via `context.submitOrder`
+- [x] 1.1 在 `src/modules/strategy-framework/` 中创建 `PercentageStrategy.ts`
+- [x] 1.2 实现捕获参考价格的初始化逻辑
+- [x] 1.3 在 `onQuote` 中实现 5% 下跌/上涨检测逻辑
+- [x] 1.4 通过 `context.submitOrder` 实现订单触发
 
-## 2. Integration and Testing
+## 2. 集成与测试
 
-- [x] 2.1 Update `src/index.ts` (or create a test runner) to use the new strategy
-- [x] 2.2 Verify strategy behavior in backtest mode with mock data
-- [x] 2.3 Verify strategy initialization in live mode (dry-run without orders if needed)
+- [x] 2.1 更新 `src/index.ts` (或创建测试运行器) 以使用新策略
+- [x] 2.2 使用模拟数据在回测模式下验证策略行为
+- [x] 2.3 在实盘模式下验证策略初始化 (如果需要，可进行不带订单的干跑/dry-run)

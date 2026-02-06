@@ -1,29 +1,33 @@
-## ADDED Requirements
+Loaded cached credentials.
+Hook registry initialized with 0 hook entries
+I will translate the requirements into Chinese while preserving the markdown structure, technical terms, and keywords like SHALL, WHEN, and THEN.
+
+## 新增 Requirements
 
 ### Requirement: Unified Position Tracking
-The system SHALL track positions for all symbols across both backtesting and live trading environments.
+系统 SHALL 追踪回测 (backtesting) 和实盘交易 (live trading) 环境中所有 symbols 的 positions。
 
 #### Scenario: Opening a new position
-- **WHEN** a buy order is filled
-- **THEN** the portfolio tracker adds the symbol to the active positions list with the correct quantity and average cost
+- **WHEN** 一个 buy order 被 filled
+- **THEN** portfolio tracker 将 symbol 添加到 active positions 列表，并记录正确的 quantity 和 average cost
 
 ### Requirement: Real-time P&L Calculation
-The system SHALL calculate realized and unrealized Profit and Loss (P&L) in real-time based on current market prices.
+系统 SHALL 根据当前市场价格实时计算已实现和未实现 P&L (Profit and Loss)。
 
 #### Scenario: Calculating unrealized P&L
-- **WHEN** the market price of a held stock changes
-- **THEN** the system updates the unrealized P&L based on the difference between the current price and the average cost
+- **WHEN** 持有股票的 market price 发生变化
+- **THEN** 系统根据 current price 与 average cost 的差值更新 unrealized P&L
 
 ### Requirement: Cash Balance Management
-The system SHALL track available cash balance and buying power, accounting for trades, commissions, and margin requirements.
+系统 SHALL 追踪可用 cash balance 和 buying power，并计入 trades、commissions 和 margin requirements。
 
 #### Scenario: Deducting cash after purchase
-- **WHEN** a buy order is executed
-- **THEN** the system reduces the available cash by the total trade value plus commissions
+- **WHEN** 一个 buy order 被 executed
+- **THEN** 系统从可用 cash 中扣除总 trade value 加上 commissions
 
 ### Requirement: Transaction History Logging
-The system SHALL maintain a detailed log of all transactions, including fills, cancellations, and amendments.
+系统 SHALL 维护所有 transactions 的详细日志，包括 fills、cancellations 和 amendments。
 
 #### Scenario: Reviewing trade logs
-- **WHEN** a backtest or live session completes
-- **THEN** the system provides a persistent record of every trade event for audit and analysis
+- **WHEN** 一个 backtest 或 live session 完成
+- **THEN** 系统提供每个 trade event 的持久记录，用于审计和分析
