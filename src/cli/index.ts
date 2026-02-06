@@ -71,8 +71,25 @@ async function run() {
 
   const getSymbols = async () => {
     try {
-      const results: any[] = await db('klines').distinct('symbol', 'market');
-      return results.map(r => `${r.symbol}.${r.market}`);
+      const stats: any[] = await db('klines')
+        .select('symbol', 'market', 'period')
+        .count('* as count')
+        .min('timestamp as earliest')
+        .max('timestamp as latest')
+        .groupBy('symbol', 'market', 'period');
+      
+      return stats.map(r => {
+        const fullSymbol = `${r.symbol}.${r.market}`;
+        const start = dayjs(r.earliest).format('YYYY-MM-DD');
+        const end = dayjs(r.latest).format('YYYY-MM-DD');
+        const periodLabel = r.period === '1' ? '1m' : (r.period === '14' ? '1d' : r.period);
+        
+        return {
+          name: `${fullSymbol.padEnd(10)} | 周期: ${periodLabel.padEnd(3)} | 数量: ${String(r.count).padStart(6)} 条 | 范围: ${start} -> ${end}`,
+          value: fullSymbol,
+          short: fullSymbol
+        };
+      });
     } catch {
       return [];
     }
@@ -184,11 +201,20 @@ async function run() {
           dayjs().toISOString()
         );
 
-        const metrics = await engine.run();
-        console.log(chalk.cyan('\n--- 📊 回测结果 ---'));
-        console.table(metrics);
-      } catch (err: any) {
-        console.error(chalk.red(`回测执行失败: ${err.message}`));
+              const metrics = await engine.run();
+              console.log(chalk.cyan('\n--- 📊 回测结果 ---'));
+              
+              const translatedMetrics = {
+                '总收益率': `${(metrics.totalReturn * 100).toFixed(2)}%`,
+                '年化收益率': `${(metrics.annualizedReturn * 100).toFixed(2)}%`,
+                '最大回撤': `${(metrics.maxDrawdown * 100).toFixed(2)}%`,
+                '夏普比率': metrics.sharpeRatio.toFixed(2),
+                '胜率': `${(metrics.winRate * 100).toFixed(2)}%`,
+                '总交易次数': metrics.totalTrades
+              };
+        
+              console.table(translatedMetrics);
+            } catch (err: any) {        console.error(chalk.red(`回测执行失败: ${err.message}`));
       }
       process.exit(0);
     });
