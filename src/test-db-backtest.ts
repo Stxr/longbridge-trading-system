@@ -41,7 +41,7 @@ async function runDbBacktest() {
       1000000
     );
 
-    const metrics = await engine.run();
+    const { metrics } = await engine.run();
 
     // 3. Report Results
     console.log('--- DB Backtest Results ---');

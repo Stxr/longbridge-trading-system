@@ -3,6 +3,11 @@ import { BaseStrategy } from './base-strategy';
 import { KLine, Quote, Order } from '../../shared/models/market-data';
 
 export class PercentageStrategy extends BaseStrategy {
+  static params = [
+    { name: "buyThreshold", type: "number", default: 0.05, message: "跌幅买入百分比 (如 0.05)" },
+    { name: "sellThreshold", type: "number", default: 0.05, message: "涨幅卖出百分比 (如 0.05)" },
+    { name: "quantity", type: "number", default: 100, message: "单笔交易数量" }
+  ];
   private referencePrice: number | null = null;
   private hasPosition: boolean = false;
   private threshold: number;

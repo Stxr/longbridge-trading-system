@@ -63,7 +63,8 @@ export class PortfolioTracker {
   getTotalEquity(quotes: Map<string, number>): number {
     let equity = this.cash;
     for (const position of this.getPositions()) {
-      const currentPrice = quotes.get(`${position.symbol}.${position.market}`) || position.averageCost;
+      const fullSymbol = `${position.symbol}.${position.market}`;
+      const currentPrice = quotes.get(fullSymbol) || quotes.get(position.symbol) || position.averageCost;
       equity += position.quantity * currentPrice;
     }
     return equity;

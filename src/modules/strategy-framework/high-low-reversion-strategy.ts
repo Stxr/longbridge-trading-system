@@ -96,6 +96,11 @@ class AssetMonitor {
 }
 
 export class HighLowReversionStrategy extends BaseStrategy {
+  static params = [
+    { name: "buyThresholdPercent", type: "number", default: 0.005, message: "低点回升买入百分比 (如 0.005)" },
+    { name: "sellThresholdPercent", type: "number", default: 0.005, message: "高点回撤卖出百分比 (如 0.005)" },
+    { name: "quantity", type: "number", default: 100, message: "单笔交易数量" }
+  ];
   private monitors: Map<string, AssetMonitor> = new Map();
 
   constructor(configs: HighLowConfig[], name: string = 'HighLowReversionStrategy') {

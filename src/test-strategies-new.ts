@@ -30,18 +30,18 @@ async function runTests() {
   }
 
   const strategies = [
-    new SMACrossoverStrategy(symbol, 5, 20),
-    new BollingerBandsStrategy(symbol, 20, 2),
-    new RSIStrategy(symbol, 14, 70, 30),
-    new MACDStrategy(symbol, 12, 26, 9),
-    new DualThrustStrategy(symbol, 2, 0.5, 0.5)
+    new SMACrossoverStrategy([{ symbol, fastPeriod: 5, slowPeriod: 20 }]),
+    new BollingerBandsStrategy([{ symbol, period: 20, stdDevMultiplier: 2 }]),
+    new RSIStrategy([{ symbol, period: 14, overbought: 70, oversold: 30 }]),
+    new MACDStrategy([{ symbol, fastPeriod: 12, slowPeriod: 26, signalPeriod: 9 }]),
+    new DualThrustStrategy([{ symbol, period: 2, k1: 0.5, k2: 0.5 }])
   ];
 
   for (const strategy of strategies) {
     console.log(`
 === Testing Strategy: ${strategy.name} ===`);
     const engine = new BacktestEngine(strategy, mockKLines);
-    const metrics = await engine.run();
+    const { metrics } = await engine.run();
     
     console.log(`Results for ${strategy.name}:`);
     console.log(`Total Trades: ${metrics.totalTrades}`);

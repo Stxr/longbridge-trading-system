@@ -6,6 +6,7 @@ export interface StrategyMetadata {
   className: string;
   filePath: string;
   description: string;
+  params: any[]; // Parameter definitions for Inquirer
 }
 
 export class StrategyLoader {
@@ -20,14 +21,26 @@ export class StrategyLoader {
         const filePath = path.join(this.strategyDir, file);
         const content = fs.readFileSync(filePath, 'utf-8');
         
-        // Simple regex to extract the class name
         const classMatch = content.match(/export class (\w+) extends BaseStrategy/);
         if (classMatch) {
+          const className = classMatch[1];
+          // Try to dynamically load to get the static params
+          let params: any[] = [];
+          try {
+            const module = require(filePath);
+            if (module[className] && module[className].params) {
+              params = module[className].params;
+            }
+          } catch {
+            // Fallback if dynamic load fails during scan
+          }
+
           strategies.push({
             name: file.replace('.ts', ''),
-            className: classMatch[1],
+            className,
             filePath,
             description: this.extractDescription(content) || 'No description provided.',
+            params
           });
         }
       }

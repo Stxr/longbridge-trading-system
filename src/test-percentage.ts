@@ -34,7 +34,7 @@ async function runTest() {
   const engine = new BacktestEngine(strategy, mockKLines);
   
   console.log(`Starting Percentage Strategy backtest for ${symbol}...`);
-  const metrics = await engine.run();
+  const { metrics } = await engine.run();
   
   console.log('\n--- Backtest Results ---');
   console.log(`Total Trades: ${metrics.totalTrades}`);

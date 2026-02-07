@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 export interface PerformanceMetrics {
   totalReturn: number;
   annualizedReturn: number;
@@ -5,54 +7,61 @@ export interface PerformanceMetrics {
   sharpeRatio: number;
   winRate: number;
   totalTrades: number;
+  initialEquity: number;
+  finalEquity: number;
+  totalCommission: number;
 }
 
 export class PerformanceAnalyzer {
   static calculateMetrics(equityHistory: { timestamp: string; equity: number }[], trades: any[]): PerformanceMetrics {
     if (equityHistory.length < 2) {
-      return { totalReturn: 0, annualizedReturn: 0, maxDrawdown: 0, sharpeRatio: 0, winRate: 0, totalTrades: 0 };
+      return { totalReturn: 0, annualizedReturn: 0, maxDrawdown: 0, sharpeRatio: 0, winRate: 0, totalTrades: 0, initialEquity: 0, finalEquity: 0, totalCommission: 0 };
     }
 
     const initialEquity = equityHistory[0].equity;
     const finalEquity = equityHistory[equityHistory.length - 1].equity;
-    const totalReturn = (finalEquity - initialEquity) / initialEquity;
+    const totalReturn = initialEquity > 0 ? (finalEquity - initialEquity) / initialEquity : 0;
 
-    // Max Drawdown
+    // 1. Robust Max Drawdown
     let maxDrawdown = 0;
-    let peak = -Infinity;
+    let peak = initialEquity; 
     for (const entry of equityHistory) {
       if (entry.equity > peak) peak = entry.equity;
-      const dd = (peak - entry.equity) / peak;
-      if (dd > maxDrawdown) maxDrawdown = dd;
+      if (peak > 0) {
+        const dd = (peak - entry.equity) / peak;
+        if (dd > maxDrawdown) maxDrawdown = dd;
+      }
     }
 
-    // Sharpe Ratio calculation
-    const returns = [];
-    for (let i = 1; i < equityHistory.length; i++) {
-      returns.push((equityHistory[i].equity - equityHistory[i - 1].equity) / equityHistory[i - 1].equity);
+    // 2. High-Frequency Robust Sharpe Ratio
+    const dailyEquity: Map<string, number> = new Map();
+    equityHistory.forEach(e => {
+      const date = dayjs(e.timestamp).format('YYYY-MM-DD');
+      dailyEquity.set(date, e.equity);
+    });
+
+    const dailyReturns: number[] = [];
+    const dailyValues = Array.from(dailyEquity.values());
+    for (let i = 1; i < dailyValues.length; i++) {
+      if (dailyValues[i-1] > 0) {
+        dailyReturns.push((dailyValues[i] - dailyValues[i-1]) / dailyValues[i-1]);
+      }
     }
-    
-    const avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
-    const stdDev = Math.sqrt(returns.map(x => Math.pow(x - avgReturn, 2)).reduce((a, b) => a + b, 0) / returns.length);
-    
-    // Calculate annualization factor based on the actual time span
-    // We estimate how many such periods exist in a trading year (approx 252 days)
+
     let sharpeRatio = 0;
-    if (stdDev !== 0 && equityHistory.length >= 2) {
-      const firstTs = new Date(equityHistory[0].timestamp).getTime();
-      const lastTs = new Date(equityHistory[equityHistory.length - 1].timestamp).getTime();
-      const totalDays = (lastTs - firstTs) / (1000 * 60 * 60 * 24);
-      
-      // If the backtest spans less than a day, we treat it as a fraction of a day
-      const daysPerYear = 252;
-      const dataPointsPerDay = (equityHistory.length - 1) / (totalDays || 1);
-      const annualizationFactor = Math.sqrt(dataPointsPerDay * daysPerYear);
-      
-      sharpeRatio = (avgReturn / stdDev) * annualizationFactor;
+    if (dailyReturns.length > 1) {
+      const avgDailyReturn = dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length;
+      const dailyVar = dailyReturns.reduce((a, b) => a + Math.pow(b - avgDailyReturn, 2), 0) / dailyReturns.length;
+      const dailyStd = Math.sqrt(dailyVar);
+      if (dailyStd > 0) {
+        sharpeRatio = (avgDailyReturn / dailyStd) * Math.sqrt(252);
+      }
     }
     
-    // Win Rate Calculation
+    // 3. Win Rate & Commission logic
     const filledTrades = trades.filter(t => t.status === 'Filled');
+    const totalCommission = filledTrades.reduce((sum, t) => sum + (t.commission || 0), 0);
+    
     let wins = 0;
     let closedTrades = 0;
     const buyStack: any[] = [];
@@ -62,21 +71,22 @@ export class PerformanceAnalyzer {
         buyStack.push(trade);
       } else if (trade.side === 'Sell' && buyStack.length > 0) {
         const buyOrder = buyStack.pop();
-        const profit = (trade.price - buyOrder.price) * trade.quantity;
+        const profit = (trade.price - buyOrder.price) * Math.min(trade.quantity, buyOrder.quantity);
         if (profit > 0) wins++;
         closedTrades++;
       }
     }
 
-    const winRate = closedTrades > 0 ? wins / closedTrades : 0;
-    
     return {
       totalReturn,
-      annualizedReturn: totalReturn, // Simplified
-      maxDrawdown,
-      sharpeRatio,
-      winRate,
+      annualizedReturn: totalReturn, 
+      maxDrawdown: isNaN(maxDrawdown) ? 0 : maxDrawdown,
+      sharpeRatio: isNaN(sharpeRatio) ? 0 : sharpeRatio,
+      winRate: closedTrades > 0 ? wins / closedTrades : 0,
       totalTrades: filledTrades.length,
+      initialEquity,
+      finalEquity,
+      totalCommission
     };
   }
 }

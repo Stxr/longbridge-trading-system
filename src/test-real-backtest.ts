@@ -43,7 +43,7 @@ async function runRealBacktest() {
 
     // 4. Run Backtest Engine
     const engine = new BacktestEngine(strategy, history, 1000000); // 1M initial cash
-    const metrics = await engine.run();
+    const { metrics } = await engine.run();
 
     // 5. Report Results
     console.log('\n--- Backtest Results ---');

@@ -3,109 +3,85 @@ import { BaseStrategy } from './base-strategy';
 import { KLine, Quote, Order } from '../../shared/models/market-data';
 
 export class MACDStrategy extends BaseStrategy {
+  static params = [
+    { name: 'fastPeriod', type: 'number', default: 12, message: '快线周期 (Fast EMA)' },
+    { name: 'slowPeriod', type: 'number', default: 26, message: '慢线周期 (Slow EMA)' },
+    { name: 'signalPeriod', type: 'number', default: 9, message: '信号线周期 (Signal)' },
+    { name: 'quantity', type: 'number', default: 100, message: '单笔交易数量' }
+  ];
+
   private fastPeriod: number;
   private slowPeriod: number;
   private signalPeriod: number;
   private quantity: number;
   private targetSymbol: string;
-  private history: number[] = [];
-  private hasPosition: boolean = false;
   
   private lastFastEma: number | null = null;
   private lastSlowEma: number | null = null;
   private lastSignalLine: number | null = null;
   private lastMacdLine: number | null = null;
+  private hasPosition: boolean = false;
 
-  constructor(
-    targetSymbol: string,
-    fastPeriod: number = 12,
-    slowPeriod: number = 26,
-    signalPeriod: number = 9,
-    quantity: number = 10,
-    name: string = 'MACDStrategy'
-  ) {
-    super(name);
-    this.targetSymbol = targetSymbol;
-    this.fastPeriod = fastPeriod;
-    this.slowPeriod = slowPeriod;
-    this.signalPeriod = signalPeriod;
-    this.quantity = quantity;
+  constructor(configs: any[]) {
+    super('MACDStrategy');
+    const config = configs[0];
+    this.targetSymbol = config.symbol;
+    this.fastPeriod = config.fastPeriod || 12;
+    this.slowPeriod = config.slowPeriod || 26;
+    this.signalPeriod = config.signalPeriod || 9;
+    this.quantity = config.quantity || 100;
   }
 
   async onInit(): Promise<void> {
-    console.log(`[${this.name}] Initialized: Fast=${this.fastPeriod}, Slow=${this.slowPeriod}, Signal=${this.signalPeriod}, Target=${this.targetSymbol}`);
+    console.log(`[${this.name}] Initialized: Target=${this.targetSymbol}, Fast=${this.fastPeriod}, Slow=${this.slowPeriod}`);
   }
 
   async onData(kline: KLine): Promise<void> {
-    if (kline.symbol !== this.targetSymbol) return;
+    const fullSymbol = `${kline.symbol}.${kline.market}`;
+    if (kline.symbol !== this.targetSymbol && fullSymbol !== this.targetSymbol) return;
 
-    this.updateIndicators(kline.close);
-
-    if (this.lastMacdLine === null || this.lastSignalLine === null || this.lastFastEma === null || this.lastSlowEma === null) return;
-
-    // We need at least one previous point for crossover check
-    // In a real implementation, we'd store prevMacdLine and prevSignalLine
+    this.updateIndicators(kline.close, kline.timestamp);
   }
 
-  // Simplified indicator update for crossover check
-  private updateIndicators(currentPrice: number) {
-    // 1. Update EMAs
+  private updateIndicators(currentPrice: number, timestamp: string) {
     this.lastFastEma = this.calculateEMA(currentPrice, this.lastFastEma, this.fastPeriod);
     this.lastSlowEma = this.calculateEMA(currentPrice, this.lastSlowEma, this.slowPeriod);
 
     const prevMacdLine = this.lastMacdLine;
     const prevSignalLine = this.lastSignalLine;
 
-    // 2. MACD Line
     this.lastMacdLine = this.lastFastEma - this.lastSlowEma;
-
-    // 3. Signal Line (EMA of MACD Line)
     this.lastSignalLine = this.calculateEMA(this.lastMacdLine, this.lastSignalLine, this.signalPeriod);
 
     if (prevMacdLine !== null && prevSignalLine !== null) {
-        // Bullish Crossover
         if (prevMacdLine <= prevSignalLine && this.lastMacdLine > this.lastSignalLine && !this.hasPosition) {
-            console.log(`[${this.name}] MACD BULLISH CROSSOVER: Buy Signal @ ${currentPrice}`);
+            console.log(`[${timestamp}] MACD BUY: Price ${currentPrice}`);
             this.executeOrder('Buy', this.targetSymbol, currentPrice);
-        }
-        // Bearish Crossover
-        else if (prevMacdLine >= prevSignalLine && this.lastMacdLine < this.lastSignalLine && this.hasPosition) {
-            console.log(`[${this.name}] MACD BEARISH CROSSOVER: Sell Signal @ ${currentPrice}`);
+        } else if (prevMacdLine >= prevSignalLine && this.lastMacdLine < this.lastSignalLine && this.hasPosition) {
+            console.log(`[${timestamp}] MACD SELL: Price ${currentPrice}`);
             this.executeOrder('Sell', this.targetSymbol, currentPrice);
         }
     }
   }
 
   private calculateEMA(current: number, lastEma: number | null, period: number): number {
-    if (lastEma === null) return current; // Initial value
+    if (lastEma === null) return current;
     const k = 2 / (period + 1);
     return current * k + lastEma * (1 - k);
   }
 
   private async executeOrder(side: 'Buy' | 'Sell', symbol: string, price: number) {
     try {
-      const orderId = await this.context.submitOrder({
-        symbol,
-        side,
-        price,
-        quantity: this.quantity,
-      });
-      console.log(`[${this.name}] ${side} order submitted: ${orderId} @ ${price}`);
       this.hasPosition = (side === 'Buy');
+      await this.context.submitOrder({ symbol, side, price, quantity: this.quantity });
     } catch (error) {
-      console.error(`[${this.name}] Failed to submit ${side} order:`, error);
+      console.error('Order failed:', error);
     }
   }
 
   async onQuote(quote: Quote): Promise<void> {}
-
   async onOrderUpdate(order: Order): Promise<void> {
-    if (order.status === 'Filled') {
-      console.log(`[${this.name}] Order FILLED: ${order.side} ${order.quantity} @ ${order.price}`);
-    }
+    if (order.status === 'Filled') console.log(`[${this.name}] Order FILLED: ${order.side} @ ${order.price}`);
   }
-
-  async onStop(): Promise<void> {
-    console.log(`[${this.name}] Stopped`);
-  }
+  async onStop(): Promise<void> { console.log(`[${this.name}] Stopped`); }
 }

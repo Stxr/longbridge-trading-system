@@ -33,22 +33,35 @@ export class BacktestEngine {
     this.strategy.setContext(modeManager.getStrategyContext());
   }
 
-  async run(): Promise<PerformanceMetrics> {
+  async run(): Promise<{ metrics: PerformanceMetrics, history: KLine[], orders: any[] }> {
     await this.strategy.onInit();
     console.log('Starting backtest...');
+
+    const processedKlines: KLine[] = [];
+    let dataCount = 0;
 
     while (this.replayer.hasNext()) {
       const kline = this.replayer.next();
       if (!kline) break;
+      processedKlines.push(kline);
+      dataCount++;
 
-      // 1. Process orders first (using current kline as next available price)
+      // 1. Process orders first
       this.simulator.processKLine(kline);
 
       // 2. Trigger strategy
       await this.strategy.onData(kline);
 
+      if (dataCount % 100 === 0) {
+        console.log(`[Engine] Processed ${dataCount} bars... Current price: ${kline.close}`);
+      }
+
       // 3. Record equity
-      const currentPriceMap = new Map([[ `${kline.symbol}.${kline.market}`, kline.close ]]);
+      const fullSymbol = `${kline.symbol}.${kline.market}`;
+      const currentPriceMap = new Map([
+        [fullSymbol, kline.close],
+        [kline.symbol, kline.close]
+      ]);
       this.equityHistory.push({
         timestamp: kline.timestamp,
         equity: this.tracker.getTotalEquity(currentPriceMap),
@@ -56,7 +69,8 @@ export class BacktestEngine {
     }
     await this.strategy.onStop();
     
-    return PerformanceAnalyzer.calculateMetrics(this.equityHistory, this.allOrders);
+    const metrics = PerformanceAnalyzer.calculateMetrics(this.equityHistory, this.allOrders);
+    return { metrics, history: processedKlines, orders: this.allOrders };
   }
 
   getEquityHistory() {

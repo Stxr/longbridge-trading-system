@@ -11,7 +11,6 @@ const isCompletionRequest = process.argv.some(arg => arg.includes('--comp') || a
 if (isCompletionRequest) {
   const completion = omelette('lbt');
 
-  // 极简策略加载逻辑，不导入任何类，只读文件名
   const listStrategiesFast = () => {
     const strategyDir = path.join(__dirname, '../modules/strategy-framework');
     try {
@@ -23,16 +22,12 @@ if (isCompletionRequest) {
     }
   };
 
-  // 极简符号加载逻辑，直接用原生的 sqlite3 避开 knex 的加载开销
-  const getSymbolsFast = () => {
-    // 补全时不查询数据库以获得极致速度，或者仅在 backtest/live 时才加载
-    // 这里我们先返回常用选项，或者实现一个超轻量级的查询
-    return ['700.HK', '9988.HK', 'AAPL.US', 'TSLA.US']; 
-  };
+  const getSymbolsFast = () => ['700.HK', '9988.HK', 'AAPL.US', 'TSLA.US']; 
 
   completion.tree({
     list: null,
     sync: null,
+    web: null,
     backtest: () => {
       const strategies = listStrategiesFast();
       const tree: any = {};
@@ -60,7 +55,7 @@ if (isCompletionRequest) {
   }
 }
 
-// 2. 正常执行逻辑 - 延迟加载重型模块
+// 2. 正常执行逻辑
 async function run() {
   const { Command } = await import('commander');
   const chalk = (await import('chalk')).default;
@@ -86,8 +81,14 @@ async function run() {
         
         return {
           name: `${fullSymbol.padEnd(10)} | 周期: ${periodLabel.padEnd(3)} | 数量: ${String(r.count).padStart(6)} 条 | 范围: ${start} -> ${end}`,
-          value: fullSymbol,
-          short: fullSymbol
+          value: { 
+            symbol: r.symbol, 
+            market: r.market, 
+            period: r.period,
+            earliest: r.earliest,
+            latest: r.latest
+          },
+          short: `${fullSymbol} (${periodLabel})`
         };
       });
     } catch {
@@ -137,12 +138,12 @@ async function run() {
 
       for (const symbol of symbolsStr.split(',').map((s: string) => s.trim())) {
         console.log(chalk.green(`\n--- Syncing ${symbol} ---`));
-        await syncer.syncHistory(symbol, period, parseInt(param || '1000'));
+        await syncer.syncHistory(symbol, period, isNaN(Number(param)) ? param : parseInt(param || '1000'));
       }
       process.exit(0);
     });
 
-    program
+  program
     .command('backtest')
     .argument('[strategy]', 'Strategy')
     .argument('[symbol]', 'Symbol')
@@ -154,6 +155,7 @@ async function run() {
       const strategies = StrategyLoader.listStrategies();
       let finalStrategy = strategyName;
 
+      // 1. Select Strategy
       if (!finalStrategy) {
         const ans = await inquirer.prompt([{ 
           type: 'list', 
@@ -162,61 +164,114 @@ async function run() {
           choices: strategies.map(s => ({
             name: `${s.name.padEnd(30)} | ${s.description}`,
             value: s.name,
-            short: s.name // 选中后只显示名字，不显示描述，保持整洁
+            short: s.name
           }))
         }]);
         finalStrategy = ans.s;
       }
 
+      const meta = strategies.find(s => s.name === finalStrategy);
+
+      // 2. Select Symbol
       const availableSymbols = await getSymbols();
-      let finalSymbol = symbolStr;
-      if (!finalSymbol) {
+      let finalSymbolInfo: any = null;
+
+      // ... (保持现有 Symbol 选择逻辑) ...
+
+      if (!finalSymbolInfo) {
         const ans = await inquirer.prompt([{
           type: 'list',
           name: 'sym',
           message: '请选择股票代码 (从本地数据库):',
           choices: availableSymbols
         }]);
-        finalSymbol = ans.sym;
+        finalSymbolInfo = ans.sym;
       }
 
+      // 2.5 Input Initial Cash
+      const { initialCash } = await inquirer.prompt([{
+        type: 'number',
+        name: 'initialCash',
+        message: '请输入初始资金 (Initial Cash):',
+        default: 100000,
+      }]);
+
+      // 3. Configure Strategy Parameters
+      let strategyParams: any = { symbol: `${finalSymbolInfo.symbol}.${finalSymbolInfo.market}` };
+      if (meta && meta.params && meta.params.length > 0) {
+        console.log(chalk.blue(`\n--- ⚙️ 配置策略参数: ${finalStrategy} ---`));
+        const paramAnswers = await inquirer.prompt(meta.params.map((p: any) => ({
+          type: p.type === 'number' ? 'number' : 'input',
+          name: p.name,
+          message: `${p.message}:`,
+          default: p.default,
+        })));
+        strategyParams = { ...strategyParams, ...paramAnswers };
+      }
+
+      // 4. Execution
+      const finalSymbol = `${finalSymbolInfo.symbol}.${finalSymbolInfo.market}`;
       console.log(chalk.yellow(`\n--- 🚀 正在启动回测: ${finalStrategy} 在 ${finalSymbol} ---`));
       
       try {
-        const [sym, market] = finalSymbol.split('.');
-        const strategy = await StrategyLoader.createStrategy(finalStrategy, {
-          symbol: finalSymbol,
-          periodType: 'daily',
-          buyThresholdPercent: 0.005,
-          sellThresholdPercent: 0.005,
-          quantity: 100
-        });
+        const strategy = await StrategyLoader.createStrategy(finalStrategy, strategyParams);
+
+        const defaultStart = dayjs().subtract(30, 'day');
+        const startTime = (dayjs(finalSymbolInfo.earliest).isAfter(defaultStart) 
+          ? dayjs(finalSymbolInfo.earliest) 
+          : defaultStart).toISOString();
+        const endTime = dayjs(finalSymbolInfo.latest).toISOString();
 
         const engine = await BacktestFactory.createFromDatabase(
           strategy,
-          sym,
-          market,
-          '1', // 默认 1 分钟线
-          dayjs().subtract(30, 'day').toISOString(),
-          dayjs().toISOString()
+          finalSymbolInfo.symbol,
+          finalSymbolInfo.market,
+          finalSymbolInfo.period,
+          startTime,
+          endTime,
+          initialCash // Use the user-provided initial cash
         );
 
-              const metrics = await engine.run();
-              console.log(chalk.cyan('\n--- 📊 回测结果 ---'));
-              
-              const translatedMetrics = {
-                '总收益率': `${(metrics.totalReturn * 100).toFixed(2)}%`,
-                '年化收益率': `${(metrics.annualizedReturn * 100).toFixed(2)}%`,
-                '最大回撤': `${(metrics.maxDrawdown * 100).toFixed(2)}%`,
-                '夏普比率': metrics.sharpeRatio.toFixed(2),
-                '胜率': `${(metrics.winRate * 100).toFixed(2)}%`,
-                '总交易次数': metrics.totalTrades
-              };
-        
-              console.table(translatedMetrics);
-            } catch (err: any) {        console.error(chalk.red(`回测执行失败: ${err.message}`));
+        const { metrics, history, orders } = await engine.run();
+        const equityValues = engine.getEquityHistory().map((e: any) => e.equity);
+      
+
+        console.log(chalk.cyan('\n--- 📊 回测结果 ---'));
+        console.table({
+          '初始资金': metrics.initialEquity.toLocaleString(),
+          '最终净值': metrics.finalEquity.toLocaleString(),
+          '总收益率': `${(metrics.totalReturn * 100).toFixed(2)}%`,
+          '总手续费': metrics.totalCommission.toFixed(2),
+          '最大回撤': `${(metrics.maxDrawdown * 100).toFixed(2)}%`,
+          '夏普比率': metrics.sharpeRatio.toFixed(2),
+          '胜率': `${(metrics.winRate * 100).toFixed(2)}%`,
+          '总交易次数': metrics.totalTrades
+        });
+      } catch (err: any) {
+        console.error(chalk.red(`回测执行失败: ${err.message}`));
       }
       process.exit(0);
+    });
+
+  program
+    .command('web')
+    .description('启动 Web 交易面板')
+    .option('-p, --port <number>', '服务端口', '3000')
+    .action(async (options) => {
+      console.log(chalk.green('🚀 正在启动 Web 交易面板...'));
+      process.env.PORT = options.port;
+      
+      const { server } = await import('../web/index');
+      const open = (await import('open')).default;
+      
+      const url = `http://localhost:${options.port}`;
+      console.log(chalk.cyan(`\n🔗 服务运行于: ${url}`));
+      
+      try {
+        await open(url);
+      } catch (err) {
+        console.log(chalk.yellow(`无法自动打开浏览器，请手动访问: ${url}`));
+      }
     });
 
   program.parse();
